@@ -1,0 +1,47 @@
+# 工作流的名称
+name: Continuous Integration
+
+# 触发条件：当有代码推送到main分支时触发
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 任务列表
+jobs:
+  # 定义一个名为 "build-and-test" 的任务
+  build-and-test:
+    # 指定运行环境为最新的Ubuntu系统
+    runs-on: ubuntu-latest
+
+    # 任务包含的步骤
+    steps:
+      # 第一步：检出代码
+      # 使用一个社区预设好的action来将仓库代码下载到虚拟机上
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 第二步：设置Python环境并测试后端
+      - name: Set up Python and test backend
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install backend dependencies and run tests
+        # 注意这里的路径，因为是在根目录执行，所以要指定到后端文件夹
+        run: |
+          pip install -r backend/requirements.txt
+          # 这是一个简单的“冒烟测试”，检查Flask能否正常启动
+          # 如果你有pytest，可以换成 pytest backend/
+          flask --app backend/app.py --version
+
+      # 第三步：设置Node.js环境并测试前端
+      - name: Set up Node.js and test frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install frontend dependencies and run build
+        # 同样，指定到前端文件夹
+        run: |
+          npm --prefix ./frontend install
+          npm --prefix ./frontend run build

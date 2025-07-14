@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173" # 映射Vite的默认端口5173
+    volumes:
+      - ./frontend:/app # 完整挂载项目，以确保vite.config.js和src的改动能被监听到
+      - /app/node_modules # 一个小技巧，防止本地的node_modules覆盖容器内的
+    depends_on:
+      - backend
